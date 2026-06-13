@@ -1,0 +1,335 @@
+{
+  "deck": "henzie_current",
+  "session_handoff": {
+    "as_of": "2026-06-13",
+    "goal": "Build a functional, tag-based baseline of the deck (weighted, by 3 modes) to decide which 3 cards to cut to fit Corpse Explosion + Tragic Slip + Victimize, keeping the deck at 100.",
+    "method_warning": "Scryfall API otag search is UNRELIABLE here — it silently misses real tags (e.g. said Kardur has no goad/drain; called 6 tagged cards 'untagged'). The earlier auto-generated counts table (ramp 24, removal 13, etc.) is RETRACTED. Tag from card text + user rulings; the tagger WEBSITE is the source of truth for raw slugs.",
+    "framework_locked": {
+      "3_modes": {
+        "mode1_early_ramp_aggro": ["ramp"],
+        "mode2_dig_thin": ["card-advantage", "tutor"],
+        "mode3_haymaker": ["haymaker", "recursion", "finisher"],
+        "support": ["removal", "board-wipe", "sacrifice-outlet", "deterrent", "synergy-sacrifice", "undergrowth", "cheat-into-play", "protection"]
+      },
+      "collapse_synonyms": { "mana-dork": "ramp", "treasure": "ramp", "draw": "card-advantage", "mass-reanimation": "haymaker" },
+      "manual_categories": ["deterrent", "haymaker", "finisher", "synergy-sacrifice", "cheat-into-play", "undergrowth"],
+      "weights": "default 1.0; conditional => partial; flex = weight_type splitting modal/MDFC credit across modes (no separate flex tag).",
+      "denominators": "report BOTH of-99 and of-nonland(64)"
+    },
+    "adjudicated_15": ["Ruthless Technomancer", "Living Death", "Etali, Primal Storm", "Kessig Cagebreakers", "Champion of Rhonas", "Kardur, Doomscourge", "Prowling Geistcatcher", "Bloodsoaked Insight", "Bringer of the Last Gift", "Rise of the Dark Realms", "Solemn Simulacrum", "Disciple of Bolas", "Greater Good", "Atsushi, the Blazing Sky", "World Shaper"],
+    "pending_user_rulings": {
+      "batch2_remaining_8": ["Disciple of Freyalise", "Wight of the Reliquary", "Birthing Ritual", "Rottenmouth Viper", "Ojer Kaslem, Deepest Growth", "Riveteers Ascendancy", "Industrial Advancement", "Zoyowa's Justice"],
+      "batch1_holdover": ["Blossoming Tortoise (ramp + recursion + lands-matter? + self-mill?)"],
+      "open_weights": { "Champion of Rhonas deterrent": 0.8, "Bloodsoaked Insight card-advantage": 0.3, "Atsushi ramp/card-adv": "0.5 / 0.5" },
+      "open_questions": ["Make 'self-mill' its own tracked category?", "Keep 'recursion' as a secondary tag on World Shaper or treat it as pure ramp?"]
+    },
+    "not_started": "Auto-tag the ~49 unambiguous cards (mana dorks->ramp, vanilla removal->removal, reanimation spells->haymaker/recursion, lands as mana base). THEN compute the weighted 3-mode stats.",
+    "decisions": { "World Shaper": "CUT candidate -> opens a slot for an add unless better ramp is found" },
+    "next_step": "Pick up at: (a) greenlight auto-tagging the unambiguous cards + finish Batch 2 with user -> compute weighted 3-mode stats; then (b) use the stats to lock the 3 cuts for Corpse Explosion / Tragic Slip / Victimize. Reminder: deck is at a legal 100 in decklists/henzie_current.txt; friend's print list is decklists/henzie_friend_print.txt (47 cards)."
+  },
+  "denominators": { "total_99": 99, "nonland": 64 },
+  "tag_collapse_rules": {
+    "mana-dork": "ramp",
+    "treasure": "ramp",
+    "draw": "card-advantage",
+    "mass-reanimation": "haymaker"
+  },
+  "_note": "effective_tags = otags from abilities where use=true, after collapse rules. Adjudicated cards below; remaining multi-ability cards pending review.",
+  "weight_model": "Each effective tag has weight 1.0 (full credit) unless listed in 'weights'. Conditional tags get partial credit (e.g. 0.8 = 'a couple points off' a 10-pt scale). FLEX weight (weight_type=flex): modal/MDFC cards split credit across the modes they serve (e.g. Atsushi ramp 0.5 / card-advantage 0.5) instead of carrying a separate 'flex' tag. CADENCE multiplier (card-level, scales ALL the card's tags): at-will/flexible=1.0, once-per-turn=0.7, once-per-turn+restricted-timing(end-step/sorcery)=0.6. Distinguishes flexible outlets (Greater Good 1.0) from once/turn engines (Industrial Advancement, Birthing Ritual 0.6). Category totals = weighted sums.",
+  "cards": [
+    {
+      "name": "Ruthless Technomancer",
+      "mana_cost": "{3}{B}",
+      "abilities": [
+        {
+          "ref": "etb",
+          "kind": "triggered",
+          "text": "When this enters, you may sacrifice another creature. If you do, create Treasures equal to its power.",
+          "otags": ["sacrifice-outlet", "treasure", "ramp"],
+          "use": true
+        },
+        {
+          "ref": "activated",
+          "kind": "activated",
+          "text": "{2}{B}, Sacrifice X artifacts: Return target creature with power X or less from your graveyard to the battlefield.",
+          "otags": ["reanimate", "recursion"],
+          "use": false,
+          "ignore_reason": "Treasures always spent on ramp; reanimation mode never used in practice."
+        }
+      ],
+      "effective_tags": ["sacrifice-outlet", "treasure", "ramp"],
+      "status": "adjudicated"
+    },
+    {
+      "name": "Living Death",
+      "mana_cost": "{3}{B}{B}",
+      "abilities": [
+        {
+          "ref": "resolve",
+          "kind": "spell",
+          "text": "Each player exiles all creatures from graveyards, sacrifices all creatures they control, then puts the exiled ones onto the battlefield.",
+          "otags": ["mass-reanimation", "reanimate", "recursion", "board-wipe", "removal"],
+          "use": true,
+          "drop_tags": ["board-wipe", "removal"],
+          "drop_reason": "Cast as a reanimation haymaker, not a wipe; board-clear is incidental."
+        }
+      ],
+      "effective_tags": ["haymaker", "reanimate", "recursion"],
+      "incidental": "also clears the board",
+      "status": "pending-confirm"
+    },
+    {
+      "name": "Etali, Primal Storm",
+      "mana_cost": "{4}{R}{R}",
+      "abilities": [
+        {
+          "ref": "attack",
+          "kind": "triggered",
+          "text": "Whenever Etali attacks, exile the top card of each player's library, then cast any number of them for free.",
+          "scryfall_tags": ["attack-trigger", "free-cast-another", "cost-ignorer", "theft-cast", "mill-exile"],
+          "otags": ["card-advantage"],
+          "use": true
+        }
+      ],
+      "effective_tags": ["card-advantage", "deterrent"],
+      "manual_tags": ["deterrent"],
+      "user_note": "Microfinisher: fat threat cheated down early for political protection (deters/redirects attacks). Generates card + tempo advantage. NOT a table-ending finisher.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Kessig Cagebreakers",
+      "mana_cost": "{4}{G}",
+      "abilities": [
+        {
+          "ref": "attack",
+          "kind": "triggered",
+          "text": "Whenever this creature attacks, create a 2/2 green Wolf token tapped and attacking for each creature card in your graveyard.",
+          "scryfall_tags": ["attack-trigger", "repeatable-creature-tokens", "undergrowth"],
+          "otags": ["tokens", "graveyard-payoff"],
+          "use": true
+        }
+      ],
+      "effective_tags": ["finisher", "tokens", "graveyard-payoff"],
+      "manual_tags": ["finisher"],
+      "user_note": "Genuine finisher: converts the stuffed graveyard into a lethal go-wide attack. Personal-touch card.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Champion of Rhonas",
+      "mana_cost": "{3}{G}",
+      "abilities": [
+        {
+          "ref": "attack-exert",
+          "kind": "triggered",
+          "text": "You may exert as it attacks. When you do, put a creature card from your hand onto the battlefield.",
+          "scryfall_tags": ["cheat-into-play"],
+          "otags": ["cheat-into-play"],
+          "use": true
+        }
+      ],
+      "effective_tags": ["cheat-into-play", "deterrent"],
+      "weights": { "deterrent": 0.8 },
+      "conditional": { "deterrent": "Needs a worthy creature in hand to be threatening; 6/6 body still blocks." },
+      "weight_status": "proposed (0.8) — pending your number",
+      "user_note": "Cheats a fat creature from hand into play on attack. Blitz body, dies end of turn, so 'won't untap' is moot.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Kardur, Doomscourge",
+      "mana_cost": "{2}{B}{R}",
+      "abilities": [
+        {
+          "ref": "etb",
+          "kind": "triggered",
+          "text": "ETB: until your next turn, opponents' creatures attack each combat if able and attack a player other than you if able.",
+          "scryfall_tags": ["goad", "forced-to-attack"],
+          "otags": ["deterrent"],
+          "use": true
+        },
+        {
+          "ref": "death-drain",
+          "kind": "triggered",
+          "text": "Whenever an attacking creature dies, each opponent loses 1 life and you gain 1.",
+          "scryfall_tags": ["drain"],
+          "otags": ["drain"],
+          "use": false,
+          "drop_reason": "Used purely as a deterrent; drain is incidental gravy."
+        }
+      ],
+      "effective_tags": ["deterrent"],
+      "incidental": "drain (1 per attacker death) — not counted",
+      "user_note": "Purely a deterrent: forces the table to swing at each other, not me.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Prowling Geistcatcher",
+      "mana_cost": "{3}{B}",
+      "abilities": [
+        {
+          "ref": "sac-bank",
+          "kind": "triggered",
+          "text": "Whenever you sacrifice another creature, exile it (token -> +1/+1 on this).",
+          "scryfall_tags": ["synergy-sacrifice", "synergy-token-creature"],
+          "otags": ["synergy-sacrifice"],
+          "use": true
+        },
+        {
+          "ref": "leaves-return",
+          "kind": "triggered",
+          "text": "When this leaves the battlefield, return each card exiled with it to the battlefield under your control.",
+          "scryfall_tags": ["leaves-trigger-self", "haven"],
+          "otags": ["recursion"],
+          "use": true
+        }
+      ],
+      "effective_tags": ["synergy-sacrifice", "recursion", "haymaker"],
+      "manual_tags": ["haymaker"],
+      "user_note": "Sac payoff that banks sacrificed creatures, then dumps them all back when it leaves (e.g. its own blitz death) — one-card board rebuild.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Bloodsoaked Insight // Sanguine Morass",
+      "mana_cost": "{3}{B} front // land back",
+      "is_mdfc": true,
+      "counts_as": ["land", "spell"],
+      "abilities": [
+        {
+          "ref": "front",
+          "kind": "spell",
+          "text": "Costs {1} less per 1 life opponents lost this turn. Opponent exiles top 3; you may play them until end of your next turn (any mana).",
+          "scryfall_tags": ["impulse", "theft", "cost-reduction"],
+          "otags": ["card-advantage"],
+          "use": true
+        },
+        {
+          "ref": "back",
+          "kind": "land",
+          "text": "Sanguine Morass: enters tapped, {T}: add B or R.",
+          "otags": ["land"],
+          "use": true
+        }
+      ],
+      "effective_tags": ["card-advantage"],
+      "weights": { "card-advantage": 0.3 },
+      "weight_type": "flex",
+      "conditional": { "card-advantage": "Played as a land most of the time; front cast rarely." },
+      "weight_status": "proposed (0.3) — pending your number",
+      "counted_in_manabase": true,
+      "user_note": "Primarily a B/R land; flips to theft/impulse card-advantage occasionally.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Bringer of the Last Gift",
+      "mana_cost": "{6}{B}{B}",
+      "abilities": [
+        { "ref": "etb", "kind": "triggered", "text": "ETB if cast: each player sacrifices all other creatures, then returns all creatures from graveyards (not put there this way) to the battlefield.", "otags": ["haymaker", "recursion"], "use": true, "drop_tags": ["board-wipe", "removal"], "drop_reason": "Haymaker reanimation; board-clear incidental (Living Death precedent)." }
+      ],
+      "effective_tags": ["haymaker", "recursion"],
+      "incidental": "also sacrifices all creatures (board wipe)",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Rise of the Dark Realms",
+      "mana_cost": "{7}{B}{B}",
+      "abilities": [
+        { "ref": "resolve", "kind": "spell", "text": "Put all creature cards from all graveyards onto the battlefield under your control.", "otags": ["haymaker", "recursion"], "use": true }
+      ],
+      "effective_tags": ["haymaker", "recursion"],
+      "status": "adjudicated"
+    },
+    {
+      "name": "Solemn Simulacrum",
+      "mana_cost": "{4}",
+      "abilities": [
+        { "ref": "etb", "kind": "triggered", "text": "ETB: fetch a basic land tapped.", "otags": ["ramp"], "use": true },
+        { "ref": "death", "kind": "triggered", "text": "Death: draw a card.", "otags": ["card-advantage"], "use": true }
+      ],
+      "effective_tags": ["ramp", "card-advantage"],
+      "status": "adjudicated"
+    },
+    {
+      "name": "Disciple of Bolas",
+      "mana_cost": "{3}{B}",
+      "abilities": [
+        { "ref": "etb", "kind": "triggered", "text": "ETB: sac another creature, gain X life and draw X (X = power).", "otags": ["sacrifice-outlet", "card-advantage"], "use": true }
+      ],
+      "effective_tags": ["sacrifice-outlet", "card-advantage"],
+      "incidental": "lifegain",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Greater Good",
+      "mana_cost": "{2}{G}{G}",
+      "abilities": [
+        { "ref": "sac", "kind": "activated", "text": "Sac a creature: draw cards equal to its power, then discard 3.", "otags": ["sacrifice-outlet", "card-advantage"], "use": true }
+      ],
+      "effective_tags": ["sacrifice-outlet", "card-advantage"],
+      "status": "adjudicated"
+    },
+    {
+      "name": "Atsushi, the Blazing Sky",
+      "mana_cost": "{2}{R}{R}",
+      "abilities": [
+        { "ref": "death-modal", "kind": "triggered", "text": "Death, choose one: impulse top 2 cards (card-advantage) OR create 3 Treasures (ramp).", "otags": ["ramp", "card-advantage"], "use": true, "modal": true }
+      ],
+      "effective_tags": ["ramp", "card-advantage"],
+      "weights": { "ramp": 0.5, "card-advantage": 0.5 },
+      "weight_type": "flex",
+      "weight_status": "proposed 0.5/0.5 — pending your split (treasures vs impulse)",
+      "status": "adjudicated"
+    },
+    {
+      "name": "World Shaper",
+      "mana_cost": "{3}{G}",
+      "abilities": [
+        { "ref": "attack", "kind": "triggered", "text": "Attack: may mill 3.", "otags": ["self-mill"], "use": true },
+        { "ref": "death", "kind": "triggered", "text": "Death: return all lands from your graveyard to the battlefield tapped.", "otags": ["ramp", "recursion"], "use": true }
+      ],
+      "effective_tags": ["ramp"],
+      "cut_candidate": true,
+      "cut_note": "WANTS TO CUT. Only 3 fetchlands + incidental mill feed lands to grave -> payoff is usually a modest 3-6 land top-off. Slot earmarked for adds (Corpse Explosion / Tragic Slip / Victimize) UNLESS better ramp is found.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Riveteers Ascendancy",
+      "mana_cost": "{B}{R}{G}",
+      "abilities": [
+        { "ref": "sac-return", "kind": "triggered", "text": "Whenever you sacrifice a creature, may return a lesser-MV creature from grave tapped. Once each turn.", "otags": ["synergy-sacrifice", "recursion"], "use": true }
+      ],
+      "effective_tags": ["synergy-sacrifice", "recursion"],
+      "cadence": "once-per-turn",
+      "cadence_multiplier": 0.7,
+      "status": "adjudicated"
+    },
+    {
+      "name": "Industrial Advancement",
+      "mana_cost": "{3}{R}",
+      "abilities": [
+        { "ref": "end-step", "kind": "triggered", "text": "End step: may sac a creature, dig X (=its MV), put a creature into play.", "otags": ["sacrifice-outlet", "cheat-into-play", "card-advantage"], "use": true }
+      ],
+      "effective_tags": ["sacrifice-outlet", "cheat-into-play", "card-advantage"],
+      "cadence": "once-per-turn (end step only)",
+      "cadence_multiplier": 0.6,
+      "user_note": "Blitz synergy: converts an end-of-turn-dying creature into a cheated-in creature.",
+      "status": "adjudicated"
+    },
+    {
+      "name": "Birthing Ritual",
+      "mana_cost": "{1}{G}",
+      "abilities": [
+        { "ref": "end-step", "kind": "triggered", "text": "End step: dig 7, may sac a creature, put a creature MV <= (sacMV+1) into play.", "otags": ["sacrifice-outlet", "cheat-into-play", "card-advantage"], "use": true }
+      ],
+      "effective_tags": ["sacrifice-outlet", "cheat-into-play", "card-advantage"],
+      "cadence": "once-per-turn (end step only)",
+      "cadence_multiplier": 0.6,
+      "status": "adjudicated"
+    }
+  ],
+  "category_defs": {
+    "deterrent": "Political/defensive: being a scary board presence (or redirecting attacks, e.g. goad) to deter aggression at you. DISTINCT from otag 'protection' (mechanically shielding a creature from removal).",
+    "protection": "Mechanical: hexproof/indestructible/save-a-creature effects (e.g. Malakir Rebirth).",
+    "haymaker": "Big swingy play that lurches the game in your favor (mass board rebuild, mass reanimation). High-impact but not necessarily lethal — Mode 3. SYNONYM: mass-reanimation folds into this.",
+    "finisher": "Closes the game / win condition (e.g. Kessig Cagebreakers turning the graveyard into a lethal swing).",
+    "_flex_DEPRECATED": "Retired as a category. Flexibility is now expressed via weight_type=flex (split partial weights across modes) — see weight_model."
+  }
+}

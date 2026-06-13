@@ -1,0 +1,12 @@
+{
+  "name": "agentic-marketplace",
+  "owner": {
+    "name": "edlichtman",
+    "email": "e.lichtman2@gmail.com"
+  },
+  "description": "A multi-plugin marketplace of guardrailed, ETL-style Claude Code agents and skills.",
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": []
+}

@@ -1,0 +1,112 @@
+Main
+1 Henzie "Toolbox" Torre # !Commander
+# Reconciled current build (100). Cut from old list: Savage Ventmaw, Veil of Summer.
+# Added vs old file: Path of Ancestry, Elvish Spirit Guide, Boggart Trawler.
+# GOAL: find 3 cuts to fit Corpse Explosion, Tragic Slip, Victimize.
+
+# Creatures
+1 Anger
+1 Kessig Cagebreakers
+1 Archpriest of Shadows
+1 Atsushi, the Blazing Sky
+1 Balor
+1 Birds of Paradise
+1 Blossoming Tortoise
+1 Bringer of the Last Gift
+1 Champion of Rhonas
+1 Deathrite Shaman
+1 Disciple of Bolas
+1 Disciple of Freyalise // Garden of Freyalise
+1 Elves of Deep Shadow
+1 Sakura-Tribe Scout
+1 Etali, Primal Storm
+1 Gorex, the Tombshell
+1 Grim Haruspex
+1 Gwenna, Eyes of Gaea
+1 Arboreal Grazer
+1 Ignoble Hierarch
+1 Ilharg, the Raze-Boar
+1 Durnan of the Yawning Portal
+1 Ruthless Technomancer
+1 Incinerator of the Guilty
+1 Junji, the Midnight Sky
+1 Kardur, Doomscourge
+1 Prowling Geistcatcher
+1 Foundation Breaker
+1 Ognis, the Dragon's Lash
+1 Ojer Kaslem, Deepest Growth // Temple of Cultivation
+1 Pawn of Ulamog
+1 Pitiless Plunderer
+1 Primeval Herald
+1 Rampant Rejuvenator
+1 Alpha Deathclaw
+1 Rottenmouth Viper
+1 Seedguide Ash
+1 Simian Spirit Guide
+1 Elvish Spirit Guide
+1 Solemn Simulacrum
+1 Spinner of Souls
+1 Wight of the Reliquary
+1 Timeless Witness
+1 Treeshaker Chimera
+1 World Shaper
+
+# Instants / Sorceries
+1 Assassin's Trophy
+1 Deadly Rollick
+1 Fell the Profane // Fell Mire
+1 Malakir Rebirth // Malakir Mire
+1 Revitalizing Repast // Old-Growth Grove
+1 Zoyowa's Justice
+1 Blasphemous Act
+1 Bloodsoaked Insight // Sanguine Morass
+1 Breach the Multiverse
+1 Living Death
+1 Rise of the Dark Realms
+1 Stump Stomp // Burnwillow Clearing
+
+# Artifacts / Enchantments
+1 Skullclamp
+1 Birthing Ritual
+1 Greater Good
+1 Industrial Advancement
+1 Riveteers Ascendancy
+1 Utopia Sprawl
+1 Wild Growth
+
+# Lands
+1 Blood Crypt
+1 Bloodstained Mire
+1 Boggart Trawler // Boggart Bog
+1 Command Tower
+1 Dragonskull Summit
+1 Exotic Orchard
+1 Forest
+1 Forest
+1 Forest
+1 Forest
+1 Forest
+1 Karplusan Forest
+1 Llanowar Wastes
+1 Luxury Suite
+1 Mountain
+1 Mountain
+1 Mountain
+1 Mountain
+1 Mountain
+1 Overgrown Tomb
+1 Path of Ancestry
+1 Reflecting Pool
+1 Rootbound Crag
+1 Shifting Woodland
+1 Spire Garden
+1 Stomping Ground
+1 Sulfurous Springs
+1 Swamp
+1 Swamp
+1 Swamp
+1 Swamp
+1 Undergrowth Stadium
+1 Verdant Catacombs
+1 Wooded Foothills
+1 Woodland Cemetery

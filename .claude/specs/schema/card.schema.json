@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mtg-deck-builder/schema/card.schema.json",
+  "title": "ETL Card Node (v0)",
+  "description": "Base schema for one card in etl.json. Required set is the EXTRACT-phase minimum; later phases tighten it via the per-phase variants noted in design-spec.md section 6. weight & cadence live on the OTAG, never on the card.",
+  "type": "object",
+  "required": ["card", "oracle_text", "otags"],
+  "additionalProperties": false,
+  "properties": {
+    "card": { "type": "string" },
+    "oracle_text": { "type": "string" },
+    "otags": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/otag" }
+    },
+    "effective_tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Derived by script in NormalizeNode; required after phase 2."
+    }
+  },
+  "$defs": {
+    "otag": {
+      "type": "object",
+      "required": ["name", "official", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "official": {
+          "type": "boolean",
+          "description": "true = real Scryfall otag (fetch-locked). false = custom/local tag; legal only if registered + user-approved in vocabulary.custom_vocab."
+        },
+        "source": {
+          "enum": ["fetch", "agent", "derived"],
+          "description": "fetch = written by extraction script (re-fetch must reproduce). agent = proposed in proposed.json. derived = computed by script."
+        },
+        "inherits": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ancestor tags from the tagger DAG. Required for official tags."
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Agent-proposed, script-validated. Required after phase 3 (Judge)."
+        },
+        "cadence": {
+          "enum": ["at-will", "once-per-turn", "once-per-turn-restricted", "one-time-etb", "one-time-death", "attack-gated", "one-shot-spell"],
+          "description": "How often this otag's effect can fire. Drives cadence_multiplier."
+        },
+        "cadence_multiplier": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Must match the cadence per the lookup table (validate.py enforces). at-will 1.0 / once-per-turn 0.7 / once-per-turn-restricted 0.6 / one-time TBD."
+        },
+        "conditional": {
+          "type": "string",
+          "description": "If the weight is reduced for a setup requirement, the human-readable reason."
+        },
+        "contribute_candidate": {
+          "type": "boolean",
+          "description": "true when the oracle implies a function no official otag covers (propose upstream to Scryfall)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "official": { "const": true } } },
+          "then": { "required": ["inherits"] }
+        }
+      ]
+    }
+  }
+}

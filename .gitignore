@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Canonical ETL data lives OUTSIDE this repo under ${CLAUDE_PLUGIN_DATA}.
+# Nothing data-bearing should ever be committed here. If a stray deck dir
+# or proposed.json appears in the tree, it is a bug — keep it out:
+**/decks/
+**/proposed.json
+**/etl.json
+**/receipts/
