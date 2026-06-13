@@ -226,7 +226,7 @@ Schema files: `schema/card.schema.json` (per-phase variants via `$ref` / `allOf`
 ## 10. Open questions / TODO
 
 - **Spec the builder-only nodes** (the phase table in §3 currently only covers analyzing a *given* list): **NeedsNode** (target counts from heuristics + plan, §1a-A), **PoolNode** (page all Scryfall bulk → tag → filter by color-identity/legality/function, §1a-C), **RankNode** (`edhrec_rank` bubbling, §1a-D). These run before/around the Extract→Judge→Compute engine.
-- **Pull the deck-building heuristic numbers** from the sibling repo (`deck-recommendations.md`, `analyze-deck.md`) into a `heuristics.json` the NeedsNode reads.
+- **Pull the deck-building heuristic numbers** from the sibling repo (`deck-recommendations.md`, `analyze-deck.md`) into a `heuristics.json` the NeedsNode reads. **DONE (v0):** `plugins/mtg-deck-builder/data/heuristics.json` seeds `category_audit_ranges` (lands/ramp/card_draw/removal/board_wipes) from `deck-recommendations.md`'s Category Audit table. **These are a starting point, not locked** — the owner may revisit/retune the ranges later as NeedsNode comes online.
 - One-time/ETB cadence tier value.
 - Custom-tag approval flow (user-gated vs auto-register-then-review).
 - `goad`-style display-name vs searchable-slug reconciliation (NormalizeNode).
@@ -235,6 +235,7 @@ Schema files: `schema/card.schema.json` (per-phase variants via `$ref` / `allOf`
 - **Deck `<slug>` derivation** — how `${CLAUDE_PLUGIN_DATA}/decks/<slug>/` is named (from the decklist filename? a `:plan` prompt? `userConfig`?).
 - **Hook deny matching** — exact path/glob the `PreToolUse` hook matches on, and how it resolves `${CLAUDE_PLUGIN_DATA}` at hook time.
 - The Henzie JSON is **UNTRUSTED** — re-derive under this schema; do not trust its current weights/fields.
+- **`scry.py: fetch_intent(card, vocab)`** — given a card (its otags) and `vocabulary.json`'s `associations` map, return which functional categories/intents the card serves. This is the NormalizeNode tag→category rollup (§3 phase 2 / §5 `associations`) exposed as a deterministic, re-fetchable helper alongside `fetch_card` and `fetch_commander_colors`. Not yet implemented — needs the tagger-GraphQL otag fetch (see `otag-reference.md`) wired into `scry.py` first.
 
 ## 11. References
 

@@ -16,15 +16,15 @@
       "weights": "default 1.0; conditional => partial; flex = weight_type splitting modal/MDFC credit across modes (no separate flex tag).",
       "denominators": "report BOTH of-99 and of-nonland(64)"
     },
-    "adjudicated_15": ["Ruthless Technomancer", "Living Death", "Etali, Primal Storm", "Kessig Cagebreakers", "Champion of Rhonas", "Kardur, Doomscourge", "Prowling Geistcatcher", "Bloodsoaked Insight", "Bringer of the Last Gift", "Rise of the Dark Realms", "Solemn Simulacrum", "Disciple of Bolas", "Greater Good", "Atsushi, the Blazing Sky", "World Shaper"],
+    "adjudicated_15": ["Ruthless Technomancer", "Living Death", "Etali, Primal Storm", "Kessig Cagebreakers", "Champion of Rhonas", "Kardur, Doomscourge", "Prowling Geistcatcher", "Bloodsoaked Insight", "Bringer of the Last Gift", "Rise of the Dark Realms", "Solemn Simulacrum", "Disciple of Bolas", "Greater Good", "Atsushi, the Blazing Sky", "Overlord of the Hauntwoods"],
     "pending_user_rulings": {
       "batch2_remaining_8": ["Disciple of Freyalise", "Wight of the Reliquary", "Birthing Ritual", "Rottenmouth Viper", "Ojer Kaslem, Deepest Growth", "Riveteers Ascendancy", "Industrial Advancement", "Zoyowa's Justice"],
       "batch1_holdover": ["Blossoming Tortoise (ramp + recursion + lands-matter? + self-mill?)"],
       "open_weights": { "Champion of Rhonas deterrent": 0.8, "Bloodsoaked Insight card-advantage": 0.3, "Atsushi ramp/card-adv": "0.5 / 0.5" },
-      "open_questions": ["Make 'self-mill' its own tracked category?", "Keep 'recursion' as a secondary tag on World Shaper or treat it as pure ramp?"]
+      "open_questions": ["Make 'self-mill' its own tracked category?"]
     },
     "not_started": "Auto-tag the ~49 unambiguous cards (mana dorks->ramp, vanilla removal->removal, reanimation spells->haymaker/recursion, lands as mana base). THEN compute the weighted 3-mode stats.",
-    "decisions": { "World Shaper": "CUT candidate -> opens a slot for an add unless better ramp is found" },
+    "decisions": { "World Shaper": "CUT -> replaced by Overlord of the Hauntwoods (confirmed ramp upgrade)" },
     "next_step": "Pick up at: (a) greenlight auto-tagging the unambiguous cards + finish Batch 2 with user -> compute weighted 3-mode stats; then (b) use the stats to lock the 3 cuts for Corpse Explosion / Tragic Slip / Victimize. Reminder: deck is at a legal 100 in decklists/henzie_current.txt; friend's print list is decklists/henzie_friend_print.txt (47 cards)."
   },
   "denominators": { "total_99": 99, "nonland": 64 },
@@ -279,15 +279,14 @@
       "status": "adjudicated"
     },
     {
-      "name": "World Shaper",
-      "mana_cost": "{3}{G}",
+      "name": "Overlord of the Hauntwoods",
+      "mana_cost": "{3}{G}{G}",
+      "replaces": "World Shaper",
       "abilities": [
-        { "ref": "attack", "kind": "triggered", "text": "Attack: may mill 3.", "otags": ["self-mill"], "use": true },
-        { "ref": "death", "kind": "triggered", "text": "Death: return all lands from your graveyard to the battlefield tapped.", "otags": ["ramp", "recursion"], "use": true }
+        { "ref": "etb-attack", "kind": "triggered", "text": "Whenever this permanent enters or attacks, create a tapped colorless land token named Everywhere that is every basic land type.", "otags": ["ramp"], "use": true }
       ],
       "effective_tags": ["ramp"],
-      "cut_candidate": true,
-      "cut_note": "WANTS TO CUT. Only 3 fetchlands + incidental mill feed lands to grave -> payoff is usually a modest 3-6 land top-off. Slot earmarked for adds (Corpse Explosion / Tragic Slip / Victimize) UNLESS better ramp is found.",
+      "user_note": "Confirmed replacement for World Shaper (CUT). Impending 4-{1}{G}{G} lets it land early as a non-creature enchantment; ramps a land on ETB and again on every attack once it's a 6/5 creature, vs. World Shaper's one-shot death-trigger land recursion.",
       "status": "adjudicated"
     },
     {

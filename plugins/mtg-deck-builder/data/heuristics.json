@@ -1,0 +1,16 @@
+{
+  "_source": "magic-cards-edh-deck-main/.claude/commands/deck-recommendations.md (Category Audit table), pulled per design-spec.md #10",
+  "_purpose": "Seed target-count ranges for NeedsNode (design-spec.md section 1a-A). Tune to the plan from PlanNode; these are starting heuristics, not hard requirements.",
+  "category_audit_ranges": {
+    "lands": { "min": 35, "max": 37 },
+    "ramp": { "min": 10, "max": 12 },
+    "card_draw": { "min": 10, "max": null },
+    "removal": { "min": 8, "max": 10 },
+    "board_wipes": { "min": 3, "max": 5 }
+  },
+  "deck_size": {
+    "total": 100,
+    "nonland": 64,
+    "note": "100 total includes the commander; nonland = total - lands.min (100 - 36 typical)."
+  }
+}
