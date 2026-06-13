@@ -49,7 +49,7 @@ Main
 1 Wight of the Reliquary
 1 Timeless Witness
 1 Treeshaker Chimera
-1 World Shaper
+1 Overlord of the Hauntwoods
 
 # Instants / Sorceries
 1 Assassin's Trophy
