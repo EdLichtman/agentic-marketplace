@@ -89,7 +89,7 @@ A phase is **not complete** until its deterministic validator passes the phase's
 | 0 | **PlanNode** | Interview the user for deck intent → `plan{modes[], goals, wincons}`. Also curates: what's valuable / real / dumb, recorded into the spec. | plan validates (≥1 defined mode) |
 | 1 | **ExtractNode** | Fetch each card's official otags + oracle text + **inheritance DAG** (tagger GraphQL, see `otag-reference.md`). Master vocab is a *side effect* here. | every card meets the Extract schema |
 | 2 | **NormalizeNode** | Resolve display-name vs searchable slug; roll leaf tags up inheritance to functional ancestors; map tree → categories; propose local tags only where the tree lacks a concept. | every tag resolves to vocab or a registered local tag |
-| 3 | **JudgeNode** | Subagent assigns **per-otag** weights (conditional / flex / cadence) vs the plan. Proposals only → `proposed.json`. | every otag meets the Judge schema |
+| 3 | **JudgeNode** | Subagent assigns the **per-otag** scoring axes (`weight` / `impact` / `reuse`) vs the plan. Proposals only → `proposed.json`. | every otag meets the Judge schema |
 | 4 | **ComputeNode** | Deterministic weighted totals per mode + both denominators. | totals reconcile; no orphan tags |
 | ∞ | **HandoffNode** | Always-on. On **"I need to put this down"** / **"write a handoff for this"** → snapshot into the ETL via script. | handoff node present + timestamped |
 
@@ -99,7 +99,7 @@ A phase is **not complete** until its deterministic validator passes the phase's
 
 ```
 agent   --writes-->  ${CLAUDE_PLUGIN_DATA}/decks/<slug>/proposed.json
-                                         (proposals ONLY: per-otag weights, use/ignore,
+                                         (proposals ONLY: per-otag weight/impact/reuse,
                                           tag->function map, proposed custom tags + defs)
 script  --writes-->  ${CLAUDE_PLUGIN_DATA}/decks/<slug>/etl.json
                                          (canonical — Write/Edit DENIED by the airlock hook)
@@ -159,27 +159,27 @@ The owner's first framing was "installing the plugin sets up `settings.json` wit
 ### Build order (LOCKED for the first slice)
 **One vertical spine on PlanNode**, end-to-end: marketplace + `plugin.json` + the guardrailed agent + the airlock hook + `/mtg-deck-builder:plan` routing to the agent + real `validate.py`/`promote.py` writing into `${CLAUDE_PLUGIN_DATA}`. This exercises the entire `CLI → agent → proposed.json → validate → promote → receipt` loop once; every later phase is a copy of this proven pattern.
 
-## 5. Data model — weight & cadence live on the OTAG
+## 5. Data model — weight, impact & reuse live on the OTAG
 
 ```jsonc
 {
   "card": "Kardur, Doomscourge",
   "oracle_text": "...",                         // source: fetch
-  "otags": [                                    // ARRAY OF OBJECTS. weight/cadence are PER-OTAG.
+  "otags": [                                    // ARRAY OF OBJECTS. weight/impact/reuse are PER-OTAG.
     { "name": "hate-attacker", "official": true, "source": "fetch",
       "inherits": ["hate", "combat-manipulation"],
-      "weight": 1.0, "cadence": "one-time-etb", "cadence_multiplier": 1.0 },
+      "weight": 1.0, "impact": 4, "reuse": "mono-use", "reuse_multiplier": 0.5 },
     { "name": "opponent-loses-life", "official": true, "source": "fetch",
       "inherits": ["drain-life"],
-      "weight": 1.0, "cadence": "one-time-etb", "cadence_multiplier": 1.0 },
+      "weight": 0.5, "impact": 1, "reuse": "mono-use", "reuse_multiplier": 0.5 },   // incidental drain
     { "name": "deterrent", "official": false, "source": "agent",
-      "weight": 1.0, "cadence": "one-time-etb", "cadence_multiplier": 1.0 }   // custom / "added"
+      "weight": 1.0, "impact": 4, "reuse": "mono-use", "reuse_multiplier": 0.5 }   // custom / "added"
   ],
   "effective_tags": ["deterrent"]               // derived by script
 }
 ```
 
-- **Per-field provenance:** `name`, `official`, `inherits` = **fetch-locked** (re-fetch must reproduce). `weight`, `cadence` = **agent-proposed** (in `proposed.json`), **script-validated**, then promoted.
+- **Per-field provenance:** `name`, `official`, `inherits` = **fetch-locked** (re-fetch must reproduce). `weight`, `impact`, `reuse`, `reuse_multiplier` = **agent-proposed** (in `proposed.json`), **script-validated**, then promoted.
 - **`official:false`** = a custom/local tag (e.g. `deterrent`), legal only if registered + user-approved in `custom_vocab`.
 - The Henzie prototype put weights on the *card* and varied fields per node — **non-conformant.** It is an input to normalize, not a template.
 
@@ -206,7 +206,7 @@ Each phase has a JSON Schema; the **required** set grows as the pipeline advance
 |-------------|----------------------|
 | 1 Extract | `card`, `oracle_text`, `otags[].{name,official,source}` (+ `inherits` for official) |
 | 2 Normalize | every `otags[].name` ∈ vocab; `effective_tags` populated |
-| 3 Judge | `otags[].{weight,cadence,cadence_multiplier}` |
+| 3 Judge | `otags[].{weight,impact,reuse,reuse_multiplier}` |
 | 4 Compute | mode totals + denominators present and reconciling |
 
 Schema files: `schema/card.schema.json` (per-phase variants via `$ref` / `allOf`). v0 lives there now.
@@ -215,13 +215,20 @@ Schema files: `schema/card.schema.json` (per-phase variants via `$ref` / `allOf`
 
 1. **Reference integrity** — every otag `name` ∈ fetched official OR registered `custom_vocab`. → kills hallucinated `goad`.
 2. **Re-fetch diff** — `official:true` otags must reproduce on a clean tagger re-fetch. The **linchpin** anti-hallucination check.
-3. **Schema / range** — `weight` ∈ [0,1]; `cadence` ∈ enum with the *matching* `cadence_multiplier`; flex splits coherent.
+3. **Schema / range** — `weight` ∈ {0, 0.5, 1}; `impact` ∈ {0..5}; `reuse` ∈ enum with the *matching* `reuse_multiplier` (at-will 1.0 / once-per-turn 0.7 / mono-use 0.5).
 4. **Local-tag registry** — `official:false` legal only if registered + user-approved + `contribute:false`. Agent may *propose* (parked pending), never self-bless.
 5. **Append-only hash chain** — editing a promoted field breaks the chain; no quiet rewrites of past sign-offs.
 
-## 8. Weight model (carried from the prototype, now per-otag)
+## 8. Scoring model — three per-otag axes
 
-- Default 1.0. **Conditional** = partial (needs setup). **Flex** = modal/MDFC split across modes. **Cadence multiplier**: at-will 1.0 · once-per-turn 0.7 · once-per-turn+restricted 0.6 · one-time/ETB *(TBD)*.
+Each otag is scored on three independent axes, and the card's contribution from that otag is their product:
+
+> **contribution = weight × impact × reuse_multiplier**
+
+- **`weight` ∈ {0.0, 0.5, 1.0}** — how much the tag *applies* to this card: `0` = doesn't really apply, `0.5` = partial, `1.0` = fully. (Replaces the old conditional/flex weighting — no continuous values, no modal splits.)
+- **`impact` ∈ {0..5}** — magnitude of the effect's game swing in this role: `0` = negligible, `5` = game-defining. A one-shot haymaker is high `impact`; a tiny incidental effect is low.
+- **`reuse`** — how often it can fire, as a multiplier: **at-will 1.0 · once-per-turn 0.7 · mono-use 0.5**. This is purely frequency; magnitude lives in `impact`, so a big one-time effect (high `impact` × `mono-use`) and a small repeatable one (low `impact` × `at-will`) can net out near each other.
+- **ComputeNode** sums each card's per-otag contributions into mode totals.
 - **Collapse/synonyms:** mana-dork→ramp · treasure→ramp · draw→card-advantage · mass-reanimation→haymaker.
 - **Denominators:** report BOTH of-99 and of-nonland.
 
@@ -234,7 +241,7 @@ Schema files: `schema/card.schema.json` (per-phase variants via `$ref` / `allOf`
 
 - **Spec the builder-only nodes** (the phase table in §3 currently only covers analyzing a *given* list): **NeedsNode** (target counts from heuristics + plan, §1a-A), **PoolNode** (page all Scryfall bulk → tag → filter by color-identity/legality/function, §1a-C), **RankNode** (`edhrec_rank` bubbling, §1a-D). These run before/around the Extract→Judge→Compute engine.
 - **Pull the deck-building heuristic numbers** from the sibling repo (`deck-recommendations.md`, `analyze-deck.md`) into a `heuristics.json` the NeedsNode reads. **DONE (v0):** `plugins/mtg-deck-builder/data/heuristics.json` seeds `category_audit_ranges` (lands/ramp/card_draw/removal/board_wipes) from `deck-recommendations.md`'s Category Audit table. **These are a starting point, not locked** — the owner may revisit/retune the ranges later as NeedsNode comes online.
-- One-time/ETB cadence tier value.
+- ~~One-time/ETB cadence tier value.~~ **RESOLVED (§8):** cadence folded into the 3-bucket `reuse` axis (at-will 1.0 / once-per-turn 0.7 / mono-use 0.5); the old one-time/ETB cases are `mono-use`. The `mono-use 0.5` value is provisional — retune in §8 if play data warrants.
 - Custom-tag approval flow (user-gated vs auto-register-then-review).
 - `goad`-style display-name vs searchable-slug reconciliation (NormalizeNode).
 - ~~Settings-deny exact glob + how scripts are invoked without re-opening the write hole.~~ **RESOLVED (§4a):** write-protection is a plugin `PreToolUse` airlock hook (plugin `settings.json` can't carry `permissions.deny`); scripts run from `${CLAUDE_PLUGIN_ROOT}/scripts/` and write only under `${CLAUDE_PLUGIN_DATA}`.

@@ -16,8 +16,9 @@ a ruling determination backed by:
 ## 2. Why a separate plugin (not part of `mtg-deck-builder`)
 
 "Judge" already means something specific in `mtg-deck-builder`: **JudgeNode**
-(design-spec.md §3, phase 3, command `:judge`) assigns per-otag weights against the
-deck's plan — a totally different concept from rules adjudication. Splitting into
+(design-spec.md §3, phase 3, command `:judge`) assigns the per-otag scoring axes
+(weight/impact/reuse) against the deck's plan — a totally different concept from
+rules adjudication. Splitting into
 its own plugin avoids the `:judge` naming collision and keeps the two domains
 (deck-building ETL vs. rules adjudication) independently versioned and installed.
 
@@ -62,4 +63,4 @@ its own plugin avoids the `:judge` naming collision and keeps the two domains
 - Scryfall rulings endpoint: `https://api.scryfall.com/cards/<id>/rulings`
 - Comprehensive Rules: https://magic.wizards.com/en/rules (confirm current
   download link/version at build time)
-- `design-spec.md` §3 — JudgeNode (the *other* "judge", per-otag weights)
+- `design-spec.md` §3 — JudgeNode (the *other* "judge", per-otag weight/impact/reuse)
