@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://mtg-deck-builder/schema/card.schema.json",
   "title": "ETL Card Node (v0)",
-  "description": "Base schema for one card in etl.json. Required set is the EXTRACT-phase minimum; later phases tighten it via the per-phase variants noted in design-spec.md section 6. weight & cadence live on the OTAG, never on the card.",
+  "description": "Base schema for one card in etl.json. Required set is the EXTRACT-phase minimum; later phases tighten it via the per-phase variants noted in design-spec.md section 6. The three scoring axes (weight, impact, reuse) live on the OTAG, never on the card; contribution = weight * impact * reuse_multiplier.",
   "type": "object",
   "required": ["card", "oracle_text", "otags"],
   "additionalProperties": false,
@@ -40,24 +40,26 @@
           "description": "Ancestor tags from the tagger DAG. Required for official tags."
         },
         "weight": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "description": "Agent-proposed, script-validated. Required after phase 3 (Judge)."
+          "enum": [0, 0.5, 1],
+          "description": "Applicability of this otag to the card: 0 = doesn't really apply, 0.5 = partial, 1 = fully. Agent-proposed, script-validated. Required after phase 3 (Judge)."
         },
-        "cadence": {
-          "enum": ["at-will", "once-per-turn", "once-per-turn-restricted", "one-time-etb", "one-time-death", "attack-gated", "one-shot-spell"],
-          "description": "How often this otag's effect can fire. Drives cadence_multiplier."
-        },
-        "cadence_multiplier": {
-          "type": "number",
+        "impact": {
+          "type": "integer",
           "minimum": 0,
-          "maximum": 1,
-          "description": "Must match the cadence per the lookup table (validate.py enforces). at-will 1.0 / once-per-turn 0.7 / once-per-turn-restricted 0.6 / one-time TBD."
+          "maximum": 5,
+          "description": "Magnitude of the effect's game swing in this role: 0 = negligible, 5 = game-defining. Agent-proposed, script-validated. Required after phase 3 (Judge)."
+        },
+        "reuse": {
+          "enum": ["at-will", "once-per-turn", "mono-use"],
+          "description": "How often this otag's effect can fire. Drives reuse_multiplier."
+        },
+        "reuse_multiplier": {
+          "enum": [1, 0.7, 0.5],
+          "description": "Must match reuse per the lookup table (validate.py enforces): at-will 1.0 / once-per-turn 0.7 / mono-use 0.5. Contribution = weight * impact * reuse_multiplier."
         },
         "conditional": {
           "type": "string",
-          "description": "If the weight is reduced for a setup requirement, the human-readable reason."
+          "description": "If weight or impact is reduced for a setup requirement, the human-readable reason."
         },
         "contribute_candidate": {
           "type": "boolean",
